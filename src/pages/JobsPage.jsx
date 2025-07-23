@@ -299,7 +299,7 @@ export default function Jobs() {
                     src={
                       job.image && job.image.trim() !== ""
                         ? cleanImageUrl(job.image)
-                        : Logo // Use a generic placeholder for missing images
+                        : assets.Logo // Use a generic placeholder for missing images
                     }
                     alt="Company Logo"
                     className="w-full h-48 object-contain p-2 rounded-lg mb-4 bg-gray-50" // `object-contain` for logos
