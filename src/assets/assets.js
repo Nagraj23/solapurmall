@@ -18,6 +18,7 @@ import Banner2 from "./hutatma.jpeg";
 import SmLogo from "./SmLogo.png";
 import newspaper from "./newsicon.jpeg";
 // import Logo2 from "../assets/Logo.png"
+import Logo from "./Logo.png";
 
 import quicklinksImg1 from "./quicklinksImg1.png";
 import quicklinksImg2 from "./quicklinksImg2.jpeg";
