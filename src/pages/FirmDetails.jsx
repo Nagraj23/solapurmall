@@ -6,6 +6,7 @@ import EnquiryForm from "../components/Enquiry";
 
 export default function DetailsPage() {
   const { firmId } = useParams();
+  const{id}=useParams();
   const [showForm, setShowForm] = useState(false);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,49 +17,56 @@ export default function DetailsPage() {
   const fallbackImg = "https://via.placeholder.com/600x300?text=No+Image";
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+  const fetchData = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const firmRes = await axios.get(`${api}/api/firms/${firmId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (firmRes.data && firmRes.data.firmId) {
+        setData(firmRes.data);
+      } else {
+        throw new Error("Not a firm, trying job...");
+      }
+    } catch (firmErr) {
+      console.warn("Firm not found, trying job...", firmErr.message);
       try {
-        const token = localStorage.getItem("authToken");
-        const res = await axios.get(`${api}/api/firms/${firmId}`, {
+        const jobRes = await axios.get(`${api}/api/jobs/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setData(res.data);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load firm data.");
-      } finally {
-        setLoading(false);
+
+        if (jobRes.data && jobRes.data.jobId) {
+          setData(jobRes.data);
+        } else {
+          throw new Error("No matching job data.");
+        }
+      } catch (jobErr) {
+        console.error("🔥 Error loading firm or job:", jobErr.message);
+        setError("Couldn't find firm or job with that ID.");
       }
-    };
-    fetchData();
-  }, [firmId]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [firmId]);
+
 
   if (loading) return <div className="p-6 text-center">⏳ Loading...</div>;
   if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
   if (!data) return null;
 
-  const {
-    firmName,
-    firmImagePath,
-    area,
-    addressLine1,
-    city,
-    pincode,
-    category,
-    subCategory,
-    contactPerson,
-    contactNo1,
-    email,
-    websiteUrl,
-    summary,
-    galleryImages = [],
-    viewmorests,
-  } = data;
+  const isFirm = !!data.firmName;
+  const isJob = !!data.jobTitle;
 
-  const imageURL = firmImagePath
-    ? `https://cp.solapurmall.com/${firmImagePath}`
-    : fallbackImg;
+ const rawImagePath = data.firmImagePath || data.logoPath || data.imagePath || "";
+const imageURL = rawImagePath.startsWith("http")
+  ? rawImagePath
+  : `https://cp.solapurmall.com/${rawImagePath}`;
 
   const tabs = [
     { id: "about", label: "About Us" },
@@ -69,41 +77,46 @@ export default function DetailsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white shadow-xl rounded-2xl p-6 border flex flex-col md:flex-row gap-6 max-w-5xl mx-auto transition-all duration-300 hover:shadow-2xl">
+      <div className="bg-white shadow-xl rounded-2xl p-6 border flex flex-col md:flex-row gap-6 max-w-5xl mx-auto">
         <img
           src={imageURL}
-          alt={firmName}
+          alt={isFirm ? data.firmName : data.jobTitle}
           className="w-[250px] h-auto object-cover rounded-lg border"
           onError={(e) => (e.target.src = fallbackImg)}
         />
         <div className="flex-1 flex flex-col gap-2">
-          <h1 className="text-3xl font-bold mb-2">{firmName}</h1>
-          <p>
-            <strong>📍 Address:</strong> {addressLine1}, {area}, {city}, {pincode}
-          </p>
-          <p>
-            <strong>🏷️ Category:</strong> {category?.mainCategoryName} / {subCategory?.subCategoryName}
-          </p>
-          <p>
-            <strong>👤 Contact:</strong> {contactPerson} | {contactNo1}
-          </p>
-          <p>
-            <strong>📧 Email:</strong> {email}
-          </p>
+          <h1 className="text-3xl font-bold mb-2">
+            {isFirm ? data.firmName : data.jobTitle}
+          </h1>
+          {isFirm ? (
+            <>
+              <p><strong>📍 Address:</strong> {data.addressLine1}, {data.area}, {data.city}, {data.pincode}</p>
+              <p><strong>🏷️ Category:</strong> {data.category?.mainCategoryName} / {data.subCategory?.subCategoryName}</p>
+              <p><strong>👤 Contact:</strong> {data.contactPerson} | {data.contactNo1}</p>
+              <p><strong>📧 Email:</strong> {data.email}</p>
+            </>
+          ) : (
+            <>
+              <p><strong>🏢 Company:</strong> {data.companyName}</p>
+              <p><strong>📍 Location:</strong> {data.location}</p>
+              <p><strong>💼 Experience:</strong> {data.experience}</p>
+              <p><strong>🧑‍💻 Skills:</strong> {data.skills}</p>
+              <p><strong>🗓️ Date:</strong> {new Date(data.entryDate).toLocaleDateString()}</p>
+            </>
+          )}
 
-          {/* Two-Column Button Layout */}
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => setShowForm(!showForm)}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 text-white px-6 py-2 rounded-xl shadow-md hover:scale-105 active:scale-95 w-full"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-xl shadow-md hover:scale-105 active:scale-95 w-full"
             >
               {showForm ? "🙈 Hide Enquiry Form" : "📩 Send Enquiry"}
             </button>
 
-            {viewmorests && (
+            {data.viewmorests && (
               <button
                 onClick={() => setShowTabs(!showTabs)}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 text-white px-6 py-2 rounded-xl shadow-md hover:scale-105 active:scale-95 w-full"
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-2 rounded-xl shadow-md hover:scale-105 active:scale-95 w-full"
               >
                 {showTabs ? "🔽 Hide Details" : "👀 View More"}
               </button>
@@ -112,7 +125,6 @@ export default function DetailsPage() {
         </div>
       </div>
 
-      {/* Enquiry Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-2xl w-full max-w-lg relative border border-gray-200">
@@ -127,7 +139,6 @@ export default function DetailsPage() {
         </div>
       )}
 
-      {/* Tabbed Info Section */}
       {showTabs && (
         <div className="mt-8 max-w-6xl mx-auto">
           <div className="flex bg-white rounded-t-xl overflow-hidden shadow-inner">
@@ -149,32 +160,30 @@ export default function DetailsPage() {
           <div className="bg-white p-6 shadow-lg border rounded-b-md">
             {activeTab === "about" && (
               <div>
-                <h2 className="text-2xl font-bold mb-4">About {firmName}</h2>
-                <p><strong>🧠 Summary:</strong> {summary || "Not available"}</p>
-                <p className="mt-2">
-                  <strong>🔗 Website:</strong>{" "}
-                  {websiteUrl ? (
+                <h2 className="text-2xl font-bold mb-4">About {isFirm ? data.firmName : data.jobTitle}</h2>
+                <p><strong>🧠 Summary:</strong> {data.summary || "Not available"}</p>
+                {isFirm && data.websiteUrl && (
+                  <p className="mt-2">
+                    <strong>🔗 Website:</strong>{" "}
                     <a
-                      href={websiteUrl}
+                      href={data.websiteUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="text-blue-600 underline"
                     >
-                      {websiteUrl}
+                      {data.websiteUrl}
                     </a>
-                  ) : (
-                    "Not available"
-                  )}
-                </p>
+                  </p>
+                )}
               </div>
             )}
 
             {activeTab === "gallery" && (
               <div className="text-center">
                 <h2 className="text-xl font-bold mb-4">📸 Photo Gallery</h2>
-                {galleryImages.length > 0 ? (
+                {data.galleryImages?.length > 0 ? (
                   <div className="flex flex-wrap justify-center gap-4">
-                    {galleryImages.map((img, i) => (
+                    {data.galleryImages.map((img, i) => (
                       <img
                         key={i}
                         src={`https://cp.solapurmall.com/${img}`}
@@ -210,9 +219,9 @@ export default function DetailsPage() {
             {activeTab === "contact" && (
               <div>
                 <h2 className="text-xl font-bold mb-4">📞 Contact Us</h2>
-                <p><strong>Contact Person:</strong> {contactPerson}</p>
-                <p><strong>Phone:</strong> {contactNo1}</p>
-                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Contact Person:</strong> {data.contactPerson}</p>
+                <p><strong>Phone:</strong> {data.contactNo1}</p>
+                <p><strong>Email:</strong> {data.email}</p>
               </div>
             )}
           </div>

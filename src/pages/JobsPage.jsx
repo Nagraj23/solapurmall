@@ -292,7 +292,7 @@ export default function Jobs() {
               filteredJobs.map((job) => (
                 <div
                   key={job.id}
-                  onClick={() => navigate(`/jobs/${job.id}`)}
+                 
                   className="cursor-pointer bg-white p-4 shadow-md rounded-xl border border-gray-200 hover:shadow-lg transition flex flex-col hover:scale-[1.01]"
                 >
                   <img
