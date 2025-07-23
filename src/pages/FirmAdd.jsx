@@ -110,16 +110,14 @@ const FirmsManagement = () => {
   const fetchFirms = useCallback(async (page) => {
     setLoadingFirms(true);
     try {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        alert("Please log in first to fetch firms.");
-        setLoadingFirms(false);
-        return;
-      }
+      // const token = localStorage.getItem("jwtToken");
+      // if (!token) {
+      //   alert("Please log in first to fetch firms.");
+      //   setLoadingFirms(false);
+      //   return;
+      // }
       const res = await fetch(`${api}/api/firms?page=${page}&limit=${FIRMS_PER_PAGE}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      
       });
       if (!res.ok) {
         throw new Error(`Failed to fetch firms: ${res.status}`);

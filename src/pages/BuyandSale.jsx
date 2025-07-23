@@ -24,13 +24,9 @@ export default function BuyandSale({ searchKeyword = "" }) {
 
   // Fetch entries
   useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
-    if (!token) return;
-
+   
     fetch(`${api}/api/buysale`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+     
     })
       .then(res => res.json())
       .then(data => {
