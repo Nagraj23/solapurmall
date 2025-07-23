@@ -24,12 +24,14 @@ const Banner = ({ imageVariable, topAds = [], midLeftAd, rightAd1, rightAd2 }) =
     }, 2000);
 
     return () => clearInterval(timer);
-  }, [topAds]);
+  }, [topAds, hasTopAds]); // Added hasTopAds to dependency array
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col gap-4">
+    // Adjusted main container width for better mobile responsiveness
+    <div className="w-full max-w-6xl mx-auto flex flex-col gap-4 p-4 md:p-0"> {/* Added p-4 for mobile padding */}
       {/* 🔝 Top Ad Carousel or Static Fallback */}
-      <div className="w-full h-[450px] rounded-lg overflow-hidden shadow-md relative">
+      {/* Adjusted height to be responsive: h-64 on mobile, md:h-[450px] on medium screens and up */}
+      <div className="w-full h-64 md:h-[450px] rounded-lg overflow-hidden shadow-md relative">
         <AnimatePresence mode="wait">
           <motion.img
             key={hasTopAds ? current : "fallback"}
@@ -42,12 +44,11 @@ const Banner = ({ imageVariable, topAds = [], midLeftAd, rightAd1, rightAd2 }) =
             transition={{ ease: "easeInOut" }}
           />
         </AnimatePresence>
-        {/* <h1>hello</h1> */}
       </div>
 
-      {/* 🧱 Mid Section */}
+      {/* 🧱 Mid Section - flex-col on mobile, flex-row on medium screens and up */}
       <div className="flex flex-col md:flex-row gap-4">
-        {/* ⬅️ Mid Left Ad */}
+        {/* ⬅️ Mid Left Ad - w-full on mobile, md:w-[65%] on medium screens and up */}
         <div className="w-full md:w-[65%] rounded-lg overflow-hidden shadow-md">
           <img
             src={getFinalImage(midLeftAd, MainImageSrc)}
@@ -56,16 +57,18 @@ const Banner = ({ imageVariable, topAds = [], midLeftAd, rightAd1, rightAd2 }) =
           />
         </div>
 
-        {/* ➡️ Right Ads */}
+        {/* ➡️ Right Ads - w-full on mobile, md:w-[35%] on medium screens and up */}
         <div className="w-full md:w-[35%] flex flex-col gap-4">
-          <div className="h-[250px] w-full rounded-lg overflow-hidden shadow-md">
+          {/* Adjusted height to be responsive: h-48 on mobile, md:h-[250px] on medium screens and up */}
+          <div className="h-48 md:h-[250px] w-full rounded-lg overflow-hidden shadow-md">
             <img
               src={getFinalImage(rightAd1, assets.ad_here)}
               alt="Right Ad 1"
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="h-[250px] w-full rounded-lg overflow-hidden shadow-md">
+          {/* Adjusted height to be responsive: h-48 on mobile, md:h-[250px] on medium screens and up */}
+          <div className="h-48 md:h-[250px] w-full rounded-lg overflow-hidden shadow-md">
             <img
               src={getFinalImage(rightAd2, BIGFLASH)}
               alt="Right Ad 2"

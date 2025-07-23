@@ -1,8 +1,17 @@
+// // imports
+// import React, { useEffect, useState, useContext } from "react";
+// import { AuthContext } from '../components/AuthContext';
+// import { useNavigate } from 'react-router-dom';
+// import { MdAccountCircle, MdEdit, MdStore, MdWork, MdCheck } from 'react-icons/md';
+// import { FaSpinner } from 'react-icons/fa';
+// import axios from 'axios';
+// import api from '../utils/api';
+
 // import libs (same as yours)
 import React, { useEffect, useState, useContext } from "react";
 import { AuthContext } from '../components/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { MdAccountCircle, MdEdit, MdStore, MdWork, MdCheck } from 'react-icons/md';
+import { MdAccountCircle, MdEdit, MdStore, MdWork, MdCheck, MdModeEdit } from 'react-icons/md';
 import { FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import api from '../utils/api';
@@ -33,16 +42,29 @@ const UserProfile = () => {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         setUserData(response.data);
+
         setUpdatedUserData(response.data);
+        console.log(updatedUserData,"uer bro ")
+
+        const firmRes = await axios.get(`${api}/api/firms`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        const filteredFirms = firmRes.data.filter(
+          (firm) => firm.user.id === updatedUserData.id
+        );
+        setUserFirms(filteredFirms);
+        console.log(firmRes)
+        console.log(userFirms,"user firms bro ")
+
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.error("Error fetching user data or firms:", err);
         setError("Failed to fetch data. Please try again.");
         if (err.response?.status === 401) logout();
       } finally {
         setLoading(false);
       }
     };
-
     fetchAll();
   }, [authToken, isAuthenticated, authContextUser, logout, navigate]);
 
@@ -69,6 +91,10 @@ const UserProfile = () => {
   const onChange = (e) => {
     const { name, value } = e.target;
     setUpdatedUserData((u) => ({ ...u, [name]: value }));
+  };
+
+  const handleEditFirm = (firmId) => {
+    navigate(`/edit-firm/${firmId}`);
   };
 
   if (loading) return <LoadingSpinner />;
@@ -111,7 +137,7 @@ const UserProfile = () => {
           )}
 
           {activeTab === "firms" && (
-            <ListPanel title="Your Firms" items={userFirms} fields={["firmName", "city", "isActive"]} emptyMessage="No firms found." />
+            <ListPanel title="Your Firms" items={userFirms} fields={["firmName", "city", "isActive"]} emptyMessage="No firms found." onEdit={handleEditFirm} />
           )}
 
           {activeTab === "jobs" && (
@@ -179,9 +205,11 @@ const Field = ({ name, label, value, editable, onChange }) => (
   </div>
 );
 
-const ListPanel = ({ title, items, fields, emptyMessage }) => (
+const ListPanel = ({ title, items, fields, emptyMessage, onEdit }) => (
   <div className="mt-8">
-    <h3 className="text-xl font-semibold mb-4">{title}</h3>
+    <h3 className="text-xl font-semibold mb-4 flex items-center justify-between">
+      <span>{title}</span>
+    </h3>
     {items.length === 0 ? (
       <div className="bg-gray-50 text-gray-600 italic text-center p-6 rounded-lg border">{emptyMessage}</div>
     ) : (
@@ -192,6 +220,7 @@ const ListPanel = ({ title, items, fields, emptyMessage }) => (
               {fields.map((f) => (
                 <th key={f} className="px-6 py-3 font-semibold">{f}</th>
               ))}
+              {onEdit && <th className="px-6 py-3 font-semibold">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -200,14 +229,22 @@ const ListPanel = ({ title, items, fields, emptyMessage }) => (
                 {fields.map((f) => (
                   <td key={f} className="px-6 py-4">
                     {f === "isActive" || f === "status" ? (
-                      it[f]
-                        ? <span className="text-green-600 font-medium">Active</span>
-                        : <span className="text-red-600 font-medium">Inactive</span>
+                      it[f] ? <span className="text-green-600 font-medium">Active</span> : <span className="text-red-600 font-medium">Inactive</span>
                     ) : (
                       it[f] || "N/A"
                     )}
                   </td>
                 ))}
+                {onEdit && (
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => onEdit(it._id)}
+                      className="text-blue-600 hover:underline flex items-center gap-1"
+                    >
+                      <MdModeEdit className="inline" /> Edit
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

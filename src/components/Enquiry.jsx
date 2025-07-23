@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { AuthContext } from '../components/AuthContext';
 
-const EnquiryForm = ({ firmId, onClose }) => {
+const EnquiryForm = ({ firmId, receiverId, onClose }) => {
   const [formData, setFormData] = useState({
-    name: '',
+    senderName: '',
     senderPhone: '',
     message: ''
   });
+
   const [status, setStatus] = useState('');
 
   const handleChange = (e) => {
@@ -18,61 +20,67 @@ const EnquiryForm = ({ firmId, onClose }) => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.senderPhone || !formData.message) {
+    const { senderName, senderPhone, message } = formData;
+
+    if (!senderName || !senderPhone || !message) {
       return alert("Bro, all fields are required 💀");
     }
 
     try {
-      await axios.post('http://localhost:8080/api/enquiries/', {
+      await axios.post('http://localhost:8100/api/enquiries/', {
         ...formData,
-        receiverFirmId: firmId,
+        firmId: firmId,
+        receiver_id: receiverId,
         mode: 'SENT'
       });
 
-      setStatus("✅ Enquiry sent!");
-      setFormData({ name: '', senderPhone: '', message: '' });
+      setStatus("✅ Enquiry sent successfully!");
+      setFormData({ senderName: '', senderPhone: '', message: '' });
 
       if (onClose) onClose();
     } catch (err) {
       console.error(err);
-      setStatus("❌ Failed to send enquiry.");
+      setStatus("❌ Failed to send enquiry. Try again later.");
     }
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Send Enquiry 📩</h2>
+    <div className="bg-white p-6 rounded-xl shadow-md max-w-lg mx-auto">
+      <h2 className="text-2xl font-bold mb-5 text-blue-700">Send Enquiry 📩</h2>
 
       <input
-        name="name"
+        name="senderName"
         placeholder="Your Name"
-        value={formData.name}
+        value={formData.senderName}
         onChange={handleChange}
-        className="w-full p-2 border rounded mb-3"
+        className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
       <input
         name="senderPhone"
-        placeholder="Your Phone"
+        placeholder="Your Phone Number"
         value={formData.senderPhone}
         onChange={handleChange}
-        className="w-full p-2 border rounded mb-3"
+        className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
       <textarea
         name="message"
-        placeholder="Message"
+        placeholder="Type your message..."
         value={formData.message}
         onChange={handleChange}
         rows={4}
-        className="w-full p-2 border rounded mb-3"
+        className="w-full p-3 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
+
       <button
         onClick={handleSubmit}
-        className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+        className="bg-blue-600 text-white px-6 py-3 rounded-md w-full hover:bg-blue-700 transition duration-200"
       >
         Submit Enquiry 🚀
       </button>
 
-      {status && <p className="mt-2 text-center">{status}</p>}
+      {status && (
+        <p className="mt-4 text-center font-medium text-gray-700">{status}</p>
+      )}
     </div>
   );
 };

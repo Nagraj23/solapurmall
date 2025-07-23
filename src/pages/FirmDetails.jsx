@@ -28,6 +28,7 @@ export default function DetailsPage() {
 
       if (firmRes.data && firmRes.data.firmId) {
         setData(firmRes.data);
+        console.log(firmRes.data,"frim")
       } else {
         throw new Error("Not a firm, trying job...");
       }
@@ -126,18 +127,28 @@ const imageURL = rawImagePath.startsWith("http")
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-2xl w-full max-w-lg relative border border-gray-200">
-            <button
-              onClick={() => setShowForm(false)}
-              className="absolute top-3 right-4 text-gray-700 hover:text-black text-3xl font-bold"
-            >
-              &times;
-            </button>
-            <EnquiryForm firmId={firmId} onClose={() => setShowForm(false)} />
-          </div>
-        </div>
-      )}
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+    <div className="bg-white/90 backdrop-blur-lg p-6 rounded-2xl shadow-2xl w-full max-w-lg relative border border-gray-300">
+      
+      {/* Close Button */}
+      <button
+        onClick={() => setShowForm(false)}
+        className="absolute top-3 right-4 text-gray-700 hover:text-red-600 text-3xl font-bold transition"
+        aria-label="Close"
+      >
+        &times;
+      </button>
+
+      {/* Enquiry Form Injected */}
+      <EnquiryForm
+        firmId={firmId}
+        receiverId={data.user.id}
+        onClose={() => setShowForm(false)}
+      />
+    </div>
+  </div>
+)}
+
 
       {showTabs && (
         <div className="mt-8 max-w-6xl mx-auto">
