@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Logo2 from "../assets/logo.png";
+// import assets.Logo from "../assets/logo.png";
+import { assets } from "../assets/assets";
 import api from '../utils/api';
+
 
 export default function BuyandSale({ searchKeyword = "" }) {
   const { register, handleSubmit, reset } = useForm();
@@ -50,7 +52,7 @@ export default function BuyandSale({ searchKeyword = "" }) {
   // Fix image path logic 🔥
   const cleanImageUrl = (filename) => {
     if (!filename || typeof filename !== "string" || filename.trim() === "") {
-      return Logo2;
+      return assets.Logo;
     }
 
     // If full URL from old data (starts with http), fix it
@@ -172,7 +174,7 @@ export default function BuyandSale({ searchKeyword = "" }) {
                     className="w-full h-48 object-cover rounded-lg mb-4"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = Logo2;
+                      e.target.src = assets.Logo;
                     }}
                   />
                   <h3 className="text-xl font-semibold">
