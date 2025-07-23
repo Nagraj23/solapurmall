@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+/* Add this in your global CSS if not using plugin */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.5); /* slate-500 */
+  border-radius: 10px;
+}
