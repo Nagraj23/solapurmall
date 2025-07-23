@@ -7,7 +7,7 @@ import { FaImage } from "react-icons/fa"; // Keep FaImage for cropped image indi
 import { AuthContext } from "../components/AuthContext";
 import ImageCropperModal from "../components/Cropimage"; // Keep the cropper modal
 import { jwtDecode } from "jwt-decode";
-import Logo2 from "../assets/Logo.png"
+import Logo2 from "../assets/assets/Logo"
 import { useNavigate } from "react-router-dom";
 import api from '../utils/api';
 
