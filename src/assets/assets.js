@@ -18,7 +18,8 @@ import Banner2 from "./hutatma.jpeg";
 import SmLogo from "./SmLogo.png";
 import newspaper from "./newsicon.jpeg";
 // import Logo2 from "../assets/Logo.png"
-import Logo2 from "./Logo.png";
+import Logo2 from "./smitLogo.png";
+// "C:\Users\Nagraj Nandal\Desktop\DSA\solapurmall-frontOffice-main\src\assets\Logo.png"
 
 import quicklinksImg1 from "./quicklinksImg1.png";
 import quicklinksImg2 from "./quicklinksImg2.jpeg";
