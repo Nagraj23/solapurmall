@@ -1,7 +1,7 @@
 import React, { useState , useEffect } from "react";
 import { assets } from "../assets/assets";
 import WeatherPopup from "../components/WeatherPopup"; // ✅ Import WeatherPopup
-import Popup from "../components/popup";
+import Popup from "../components/Popup";
 
 const quickLinkItems = [
   { name: "🚑 Ambulance", url: "quicklinklisting.php?quickid=4" },
