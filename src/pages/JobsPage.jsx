@@ -7,7 +7,8 @@ import { FaImage } from "react-icons/fa"; // Keep FaImage for cropped image indi
 import { AuthContext } from "../components/AuthContext";
 import ImageCropperModal from "../components/Cropimage"; // Keep the cropper modal
 import { jwtDecode } from "jwt-decode";
-import Logo2 from "../assets/assets/Logo"
+// import Logo2 from "../assets/assets/Logo"
+import Logo from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import api from '../utils/api';
 
@@ -297,7 +298,7 @@ export default function Jobs() {
                     src={
                       job.image && job.image.trim() !== ""
                         ? cleanImageUrl(job.image)
-                        : Logo2 // Use a generic placeholder for missing images
+                        : Logo // Use a generic placeholder for missing images
                     }
                     alt="Company Logo"
                     className="w-full h-48 object-contain p-2 rounded-lg mb-4 bg-gray-50" // `object-contain` for logos
