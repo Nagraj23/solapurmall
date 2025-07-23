@@ -8,7 +8,8 @@ import { AuthContext } from "../components/AuthContext";
 import ImageCropperModal from "../components/Cropimage"; // Keep the cropper modal
 import { jwtDecode } from "jwt-decode";
 // import Logo2 from "../assets/assets/Logo"
-import Logo from "../assets/assets";
+import { assets } from "../assets/assets";
+// import Logo2 from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import api from '../utils/api';
 
@@ -251,7 +252,7 @@ export default function Jobs() {
   const cleanImageUrl = (filename) => {
     return filename
       ? `${api}/uploads/jobs/${filename}` // Adjust path if needed
-      : Logo2; // Placeholder image for jobs
+      : assets.Logo2; // Placeholder image for jobs
   };
 
   return (
