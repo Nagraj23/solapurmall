@@ -3,12 +3,26 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import api from "../utils/api";
 
-// Import icons
-import { MdAttachEmail, MdPhone } from "react-icons/md";
-import { IoIosContact } from "react-icons/io";
-import { RiUserLocationFill } from "react-icons/ri";
-import { TbWorldWww } from "react-icons/tb";
-import { FaCalendarTimes, FaBuilding } from "react-icons/fa"; // Added FaBuilding for firm name
+// Icons
+import {
+  MdAttachEmail,
+  MdPhone,
+} from "react-icons/md";
+import {
+  IoIosContact,
+} from "react-icons/io";
+import {
+  RiUserLocationFill,
+} from "react-icons/ri";
+import {
+  TbWorldWww,
+} from "react-icons/tb";
+import {
+  FaCalendarTimes,
+  FaBuilding,
+} from "react-icons/fa";
+// import fallbackImage from "../assets/smit";
+import {assets}from "../assets/assets"
 
 const CategoryDetails = () => {
   const [firms, setFirms] = useState([]);
@@ -19,11 +33,14 @@ const CategoryDetails = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
-  const categoryId = queryParams.get("categoryId")?.toString();
-  const mainCategoryParam = queryParams.get("mainCategory")?.trim().toLowerCase();
+  const mainCatId = queryParams.get("mainCategoryId")?.toString(); // 🆕
+  const subCatId = queryParams.get("subCategoryId")?.toString();   // 🆕
+  const mainCatName = queryParams.get("mainCategory")?.trim().toLowerCase();
 
-  // 🔄 Fetch all firms
+
+  // 🔄 Fetch Firms
   useEffect(() => {
+    console.log(mainCatId , subCatId , mainCatName ," logs ")
     const fetchFirms = async () => {
       try {
         const token = localStorage.getItem("authToken");
@@ -41,47 +58,51 @@ const CategoryDetails = () => {
     fetchFirms();
   }, []);
 
-  // ✅ Final Filtering Logic
+  // ✅ Filtering Logic
   useEffect(() => {
     if (firms.length === 0) return;
 
     let matched = [];
 
-    if (categoryId) {
-      // ✅ First: check if categoryId matches any firm's MAIN category
-      const matchesMainCategory = firms.filter(
-        (firm) => firm.category?.categoryId?.toString() === categoryId
+    if (mainCatId && !subCatId) {
+      // 1️⃣ Main Category ID ONLY
+      matched = firms.filter(
+        (firm) => firm.category?.categoryId?.toString() === mainCatId
       );
-
-      if (matchesMainCategory.length > 0) {
-        matched = matchesMainCategory;
-        setMessage("");
-      } else {
-        // 🔍 Else: fallback to match by subcategoryId
-        matched = firms.filter(
-          (firm) => firm.subCategory?.subCategoryId?.toString() === categoryId
-        );
-        setMessage(matched.length ? "" : "No firms found with this subcategory ID.");
-      }
-    } else if (mainCategoryParam) {
+      setMessage(matched.length ? "" : "No firms found with this main category ID.");
+    } else if (mainCatId && subCatId) {
+      // 2️⃣ Main + Sub Category ID
+      matched = firms.filter(
+        (firm) =>
+          firm.category?.categoryId?.toString() === mainCatId &&
+          firm.subCategory?.subCategoryId?.toString() === subCatId
+      );
+      setMessage(matched.length ? "" : "No firms found with this main + sub category.");
+    } else if (mainCatName) {
+      // 3️⃣ Main Category Name (fallback)
       matched = firms.filter((firm) => {
-        const mainCatName = firm.category?.mainCategoryName?.toLowerCase();
+        const catName = firm.category?.mainCategoryName?.toLowerCase();
         const subCatName = firm.subCategory?.subCategoryName?.toLowerCase();
-        return mainCatName === mainCategoryParam || subCatName === mainCategoryParam;
+        return catName === mainCatName || subCatName === mainCatName;
       });
-
-      setMessage(matched.length ? "" : "No firms found for this category name.");
+      setMessage(matched.length ? "" : "No firms found with this category name.");
+    } else {
+      setMessage("No filtering parameters provided.");
     }
 
     setFilteredFirms(matched);
-  }, [firms, categoryId, mainCategoryParam]);
+    console.log(matched,"")
+  }, [firms, mainCatId, subCatId, mainCatName]);
 
   // 🏷️ Title
-  const title = categoryId
-    ? `Category ID: ${categoryId}`
-    : mainCategoryParam
-    ? `Category Name: ${mainCategoryParam}`
-    : "All Firms";
+  const title =
+    mainCatId && subCatId
+      ? `Main ID: ${mainCatId} & Sub ID: ${subCatId}`
+      : mainCatId
+      ? `Main Category ID: ${mainCatId}`
+      : mainCatName
+      ? `Category Name: ${mainCatName}`
+      : "All Firms";
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -97,74 +118,96 @@ const CategoryDetails = () => {
           <h2 className="text-2xl font-semibold mb-6 text-gray-700 border-b pb-2">
             Firms Matching Your Criteria ({filteredFirms.length})
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-            {filteredFirms.map((firm) => (
-              <div
-                key={firm.firmId}
-                className="bg-white p-6 rounded-lg shadow-md border border-gray-200
-                           transform transition duration-300 hover:scale-105 hover:shadow-lg flex flex-col"
-              >
-                {firm.icon && (
-                  <div className="flex justify-center items-center h-24 mb-4 bg-gray-50 rounded-md overflow-hidden">
-                    <img
-                      src={`${api}/uploads/${firm.icon}`} // Assuming firm.icon is the filename
-                      alt={`${firm.firmName} icon`}
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                )}
-                <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center">
-                  <FaBuilding className="mr-3 text-blue-600" />
-                  {firm.firmName}
-                </h3>
-                <p className="text-sm text-gray-700 mb-1 flex items-center">
-                  <IoIosContact className="mr-3 text-purple-600" />
-                  <span className="font-medium">Contact Person:</span> {firm.contactPerson}
-                </p>
-                <p className="text-sm text-gray-700 mb-1 flex items-center">
-                  <MdPhone className="mr-3 text-green-600" />
-                  <span className="font-medium">Phone:</span> {firm.contactNo1}
-                </p>
-                {firm.email && (
-                  <p className="text-sm text-gray-700 mb-1 flex items-center">
-                    <MdAttachEmail className="mr-3 text-red-600" />
-                    <span className="font-medium">Email:</span>{" "}
-                    <a href={`mailto:${firm.email}`} className="text-blue-500 hover:underline truncate">
-                      {firm.email}
-                    </a>
-                  </p>
-                )}
-                <p className="text-sm text-gray-700 mb-1 flex items-center">
-                  <RiUserLocationFill className="mr-3 text-indigo-600" />
-                  <span className="font-medium">Location:</span> {firm.address1}, {firm.area}, {firm.city} -{" "}
-                  {firm.pincode}
-                </p>
-                {firm.website && (
-                  <p className="text-sm text-gray-700 mb-1 flex items-center">
-                    <TbWorldWww className="mr-3 text-teal-600" />
-                    <span className="font-medium">Website:</span>{" "}
-                    <a
-                      href={firm.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline truncate"
-                    >
-                      {firm.website}
-                    </a>
-                  </p>
-                )}
-                <p className="text-sm text-gray-600 mt-2 flex items-center">
-                  <FaCalendarTimes className="mr-3 text-gray-500" />
-                  <span className="font-medium">Entry Date:</span>{" "}
-                  {new Date(firm.entryDate).toLocaleDateString()}
-                </p>
-                {firm.summary && (
-                  <p className="text-xs text-gray-500 mt-3 italic line-clamp-3">
-                    <span className="font-medium">Summary:</span> {firm.summary}
-                  </p>
-                )}
-              </div>
-            ))}
+          <div className="grid grid-cols-1 ml-8 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-6">
+          {filteredFirms.map((firm) => (
+  <div
+    key={firm.firmId}
+    className="bg-white left-2 w-3/4 h-[250px] rounded-lg shadow-md border border-gray-200 transform transition duration-300 hover:scale-[1.02] hover:shadow-xl flex flex-col md:flex-row overflow-hidden"
+  >
+    {/* Left - Image */}
+    <div className="md:w-1/3 bg-gray-50 flex items-center justify-center p-4">
+  <img
+    src={
+      firm.firmImagePath
+        ? `${api}/uploads/${firm.firmImagePath}`
+        : assets.Logo
+    }
+    alt={`${firm.firmName} icon`}
+    className="h-full w-full object-contain"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src = fallbackImage;
+    }}
+  />
+</div>
+
+    {/* Right - Firm Details */}
+    <div className="flex-1 p-4 space-y-2">
+      <h3 className="text-xl font-bold text-gray-800 flex items-center">
+        <FaBuilding className="mr-2 text-blue-600" />
+        {firm.firmName}
+      </h3>
+
+      <div className="text-sm text-gray-700 space-y-1">
+        <p className="flex items-center">
+          <IoIosContact className="mr-2 text-purple-600" />
+          <span className="font-medium">Contact:</span> {firm.contactPerson}
+        </p>
+
+        <p className="flex items-center">
+          <MdPhone className="mr-2 text-green-600" />
+          <span className="font-medium">Phone:</span> {firm.contactNo1}
+        </p>
+
+        {firm.email && (
+          <p className="flex items-center">
+            <MdAttachEmail className="mr-2 text-red-600" />
+            <span className="font-medium">Email:</span>{" "}
+            <a
+              href={`mailto:${firm.email}`}
+              className="text-blue-500 hover:underline truncate"
+            >
+              {firm.email}
+            </a>
+          </p>
+        )}
+
+        <p className="flex items-center">
+          <RiUserLocationFill className="mr-2 text-indigo-600" />
+          <span className="font-medium">Location:</span> {firm.address1}, {firm.area}, {firm.city} - {firm.pincode}
+        </p>
+
+        {firm.website && (
+          <p className="flex items-center">
+            <TbWorldWww className="mr-2 text-teal-600" />
+            <span className="font-medium">Website:</span>{" "}
+            <a
+              href={firm.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline truncate"
+            >
+              {firm.website}
+            </a>
+          </p>
+        )}
+
+        <p className="flex items-center">
+          <FaCalendarTimes className="mr-2 text-gray-500" />
+          <span className="font-medium">Entry Date:</span>{" "}
+          {new Date(firm.entryDate).toLocaleDateString()}
+        </p>
+
+        {firm.summary && (
+          <p className="text-xs text-gray-600 mt-1 italic line-clamp-3">
+            <span className="font-medium">Summary:</span> {firm.summary}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+))}
+
           </div>
         </section>
       )}

@@ -72,28 +72,24 @@ const Sidebar = () => {
   const selectedMainCategory = categories.find(cat => String(cat.categoryId) === selectedMainCategoryId);
   const selectedSubCategory = subCategories.find(sub => String(sub.subCategoryId) === selectedSubCategoryId);
 
-  const handleNavigate = () => {
-    if (!selectedMainCategory) {
-      alert("Please select a Main Category.");
-      return;
+ const handleNavigate = () => {
+  if (!selectedMainCategoryId) {
+    alert("Please select a Main Category.");
+    return;
+  }
+
+  const url = selectedSubCategoryId
+    ? `/category-details?mainCategoryId=${selectedMainCategoryId}&subCategoryId=${selectedSubCategoryId}`
+    : `/category-details?mainCategoryId=${selectedMainCategoryId}`;
+
+  navigate(url, {
+    state: {
+      mainCategory: selectedMainCategory,
+      subCategory: selectedSubCategory || null,
     }
-
-    const mainCategoryName = encodeURIComponent(selectedMainCategory.mainCategoryName);
-    const subCategoryName = selectedSubCategory
-      ? encodeURIComponent(selectedSubCategory.subCategoryName)
-      : '';
-
-    const url = subCategoryName
-      ? `/category-details?mainCategory=${mainCategoryName}&subCategory=${subCategoryName}`
-      : `/category-details?mainCategory=${mainCategoryName}`;
-
-    navigate(url, {
-      state: {
-        mainCategory: selectedMainCategory,
-        subCategory: selectedSubCategory || null,
-      }
-    });
-  };
+  });
+};
+;
 
   return (
     <aside className="w-full h-full bg-gray-100 border-t md:border-t-0 md:border-l border-gray-200 p-0 flex flex-col ">

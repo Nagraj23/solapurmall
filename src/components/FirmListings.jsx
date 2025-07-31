@@ -17,7 +17,7 @@ const FirmListings = () => {
   useEffect(() => {
     const fetchFirms = async () => {
       try {
-        const token = localStorage.getItem("authToken");
+       const token = localStorage.getItem("jwtToken"); 
         const res = await axios.get(`${api}/api/firms`, {
           headers: {
             Authorization: `Bearer ${token}`,

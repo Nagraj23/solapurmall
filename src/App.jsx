@@ -32,7 +32,7 @@ import SearchResults from "./pages/SearchResult";
 
 const App = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter >
       <AuthProvider>
         <Navbar />
 
